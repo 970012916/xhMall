@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xhMall.db.dao.UserEntityDao">
+
+  <sql id="Base_Column_List">
+    ID, USERNAME, PASSWORD, EMAIL, MOBILE_NUMBER, BIRTH_DATE, SEXY, STATUS, CREATE_TIME,
+    MODIFY_TIME,VERIFY_CODE,AUTO_LOGIN_FLAG
+  </sql>
+
+  <!--查询用户登录信息-->
+  <select id="selectByUsername" parameterType="java.lang.String" resultType="UserEntity">
+    SELECT
+      <include refid="Base_Column_List" />
+    FROM
+      MALL_USER
+    WHERE
+      USERNAME = #{username,jdbcType=VARCHAR}
+  </select>
+
+<!--查询所有用户信息-->
+  <select id="selectAllUsers" parameterType="java.lang.String" resultType="UserEntity">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+    MALL_USER
+  </select>
+<!--  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from mall_user
+    where Id = #{id,jdbcType=VARCHAR}
+  </delete>-->
+
+<!--注册用户-->
+  <insert id="regist" parameterType="UserEntity">
+    INSERT INTO MALL_USER
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null and id != ''">
+        Id,
+      </if>
+      <if test="username != null and username != ''">
+        USERNAME,
+      </if>
+      <if test="password != null and password != ''">
+        PASSWORD,
+      </if>
+      <if test="email != null and email != ''">
+        EMAIL,
+      </if>
+      <if test="mobileNumber != null and mobileNumber != ''">
+        MOBILE_NUMBER,
+      </if>
+      <if test="birthDate != null and birthDate != ''">
+        BIRTH_DATE,
+      </if>
+      <if test="sexy != null and sexy != ''">
+        SEXY,
+      </if>
+      <if test="status != null and status != ''">
+        STATUS,
+      </if>
+        CREATE_TIME,
+        MODIFY_TIME,
+      <if test="verifyCode != null and verifyCode != ''">
+        VERIFY_CODE,
+      </if>
+      <if test="autoLoginFlag != null and autoLoginFlag != ''">
+        AUTO_LOGIN_FLAG,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null and username != ''">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null and password != ''">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null and email ''">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNumber != null and mobileNumber != ''">
+        #{mobileNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="birthDate != null and birthDate != ''">
+        #{birthDate,jdbcType=DATE},
+      </if>
+      <if test="sexy != null and sexy != ''">
+        #{sexy,jdbcType=INTEGER},
+      </if>
+      <if test="status != null and status != ''">
+        #{status,jdbcType=INTEGER},
+      </if>
+        NOW(),
+        NOW(),
+      <if test="verifyCode != null and verifyCode != ''">
+        #{verifyCode,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="autoLoginFlag != null and autoLoginFlag != ''">
+        #{autoLoginFlag,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateUserByUsername" parameterType="UserEntity">
+    UPDATE MALL_USER
+    <set>
+      <if test="username != null and username != ''">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null and password != ''">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null and email != ''">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNumber != null and mobileNumber != ''">
+        mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="birthDate != null and birthDate != ''">
+        birth_date = #{birthDate,jdbcType=DATE},
+      </if>
+      <if test="sexy != null and sexy != ''">
+        sexy = #{sexy,jdbcType=INTEGER},
+      </if>
+      <if test="status != null and status != ''">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+       NOW(),
+      <if test="verifyCode != null and username != ''">
+        verify_code = #{verifyCode,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="autoLoginFlag != null and autoLoginFlag != ''">
+        AUTO_LOGIN_FLAG = #{autoLoginFlag,jdbcType=INTEGER},
+      </if>
+    </set>
+    where Id = #{id,jdbcType=VARCHAR}
+  </update>
+  <!--
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.xhMall.db.entity.UserEntity">
+    update mall_user
+    set username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+      birth_date = #{birthDate,jdbcType=DATE},
+      sexy = #{sexy,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      verify_code = #{verifyCode,jdbcType=LONGVARCHAR}
+    where Id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.xhMall.db.entity.UserEntity">
+    update mall_user
+    set username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+      birth_date = #{birthDate,jdbcType=DATE},
+      sexy = #{sexy,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where Id = #{id,jdbcType=VARCHAR}
+  </update>-->
+</mapper>

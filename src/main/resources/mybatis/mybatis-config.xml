@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- 属性定义 加载一个properties文件 在 properties标签 中配置属性值 -->
+	<!-- 定义 别名 -->
+	<typeAliases>
+		<typeAlias type="com.xhMall.db.entity.UserEntity" alias="UserEntity"/>
+	</typeAliases>
+	
+
+</configuration>

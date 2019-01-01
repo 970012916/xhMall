@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0"
+         metadata-complete="true">
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:spring/spring-app.xml,classpath:activiti.cfg.xml</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+ <!-- <listener>
+    <listener-class>org.apache.tiles.extras.complete.CompleteAutoloadTilesListener</listener-class>
+  </listener>-->
+  <context-param>
+    <param-name>logbackConfigLocation</param-name>
+    <param-value>classpath:spring/spring-logback.xml</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:spring/spring-mvc.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+
+  <servlet-mapping>
+    <servlet-name>dispatcher</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
+  <!--<servlet>
+    <servlet-name>GenerateData</servlet-name>
+    <servlet-class>com.xhMall.global.StartUpServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>-->
+
+
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.xhtml</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <!--<welcome-file>/template/defaultLayout.jsp</welcome-file>-->
+  </welcome-file-list>
+
+  <!-- The filter-name matches name of a 'shiroFilter' bean inside applicationContext.xml -->
+  <!--<filter>
+    <filter-name>shiroFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <init-param>
+      <param-name>targetFilterLifecycle</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>-->
+
+  <!-- Make sure any request you want accessible to Shiro is filtered. /* catches all -->
+  <!-- requests.  Usually this filter mapping is defined first (before all others) to -->
+  <!-- ensure that Shiro works in subsequent filters in the filter chain:             -->
+
+  <!--<filter-mapping>
+    <filter-name>shiroFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+    <dispatcher>FORWARD</dispatcher>&lt;!&ndash; 如果在jsp要使用shiro跳转，但是是服务器内部跳转，所以要配置forward &ndash;&gt;
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>&lt;!&ndash; page include  会生成xx.jsp 重定向  使用shiro的标签，要经过shiro的filter &ndash;&gt;
+  </filter-mapping>-->
+  <!--UTF-8字符过滤-->
+  <filter>
+    <filter-name>encodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>encodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>cross-origin</filter-name>
+    <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+    <init-param>
+      <param-name>allowedOrigins</param-name>
+      <param-value>*</param-value>
+    </init-param>
+    <init-param>
+      <param-name>allowedMethods</param-name>
+      <param-value>GET,POST,HEAD</param-value>
+    </init-param>
+    <init-param>
+      <param-name>allowedHeaders</param-name>
+      <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
+    </init-param>
+  </filter>
+  <!-- 此处表示jetty中的所有url都可以支持跨域 -->
+  <filter-mapping>
+    <filter-name>cross-origin</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+
+
+</web-app>

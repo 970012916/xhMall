@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="activiti-demo:war">
+    <output-path>D:/activiti-demo-master/target</output-path>
+    <root id="archive" name="activiti-demo-1.0.war">
+      <element id="artifact" artifact-name="activiti-demo:war exploded" />
+    </root>
+  </artifact>
+</component>

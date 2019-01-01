@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="cas-sample-site1">
+    <output-path>D:/</output-path>
+    <root id="archive" name="cas-sample-site1.war" />
+  </artifact>
+</component>

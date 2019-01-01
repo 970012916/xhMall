@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="xhMall:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="xhMall.war">
+      <element id="artifact" artifact-name="xhMall:war exploded" />
+    </root>
+  </artifact>
+</component>
