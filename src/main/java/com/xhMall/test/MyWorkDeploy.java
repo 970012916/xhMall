@@ -65,4 +65,16 @@ public class MyWorkDeploy {
         System.out.println(deployment.getName());
     }
 
+    //部署含驳回的流程
+    @Test
+    public void deployProcessReject(){
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        DeploymentBuilder builder = repositoryService.createDeployment();
+        Deployment deployment = builder.addClasspathResource("rejectWorkFlow.bpmn")//bpmn文件的名称
+                .addClasspathResource("rejectWorkFlow.png")
+                .name("驳回的流程")
+                .deploy();
+        System.out.println(deployment.getId());
+        System.out.println(deployment.getName());
+    }
 }
