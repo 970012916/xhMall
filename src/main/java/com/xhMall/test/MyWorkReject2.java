@@ -35,7 +35,7 @@ public class MyWorkReject2 {
 
     @Test
     public void Test()throws Exception{
-        turnBackNew("92503","不同意","test_end");
+        turnBackNew("305005","不同意","_6");
     }
     /**
      *
@@ -72,7 +72,8 @@ public class MyWorkReject2 {
         if (definition == null) {
             throw new RuntimeException("流程定义未找到");
         }
-        // 取得上一步活动
+
+        // 迭代循环流程树结构，查询当前节点可驳回的任务节点 start
         ActivityImpl currActivity = ((ProcessDefinitionImpl) definition)
                 .findActivity(currTask.getTaskDefinitionKey());
         List<ActivityImpl> rtnList = new ArrayList<>();
@@ -83,15 +84,24 @@ public class MyWorkReject2 {
                 rtnList,
                 tempList
         );
-        if (activities == null || activities.size() <= 0) throw new RuntimeException("没有可以选择的驳回节点!");
+        // 迭代循环流程树结构，查询当前节点可驳回的任务节点 end
+
+        if (activities == null || activities.size() <= 0){
+            throw new RuntimeException("没有可以选择的驳回节点!");
+        }
         List<Task> list = taskService.createTaskQuery().processInstanceId(instance.getId()).list();
         for (Task task : list) {
             if (!task.getId().equals(taskId)) {
                 task.setAssignee("排除标记");
-                commitProcess(task.getId(), variables, endActivityId);
+                commitProcess(task.getId(), null, endActivityId);
             }
         }
-        turnTransition(taskId, activities.get(0).getId(), variables);
+        //turnTransition(taskId, activities.get(0).getId(), null);
+        for(ActivityImpl activity : activities){
+            if(activity.getId().equals(endActivityId)){
+                turnTransition(taskId, activity.getId(), null);
+            }
+        }
     }
 
     /**
@@ -164,7 +174,7 @@ public class MyWorkReject2 {
                                 Map<String, Object> variables) throws Exception {
         // 当前节点
         ActivityImpl currActivity = findActivitiImpl(taskId, null);
-        // 清空当前流向
+        // 清空目标节点当前流向
         List<PvmTransition> oriPvmTransitionList = clearTransition(currActivity);
 
         // 创建新流向
@@ -219,7 +229,22 @@ public class MyWorkReject2 {
                 String gatewayType = gatewayId.substring(gatewayId
                         .lastIndexOf("_") + 1);
                 if ("START".equals(gatewayType.toUpperCase())) {// 并行起点，停止递归
-                    return rtnList;
+                    //return rtnList;
+                    Task taskInfo = taskService.createTaskQuery().taskId(taskId).singleResult();
+                    String instanceId = taskInfo.getProcessInstanceId();
+                    List<Task> taskList = taskService.createTaskQuery().processInstanceId(instanceId).list();
+                    for (Task task : taskList){
+                        if (!taskId.equals(task.getId())){
+                            commitProcess(task.getId(), null, "_8");
+                        }else{
+                            ProcessDefinitionEntity processDefinition = findProcessDefinitionEntityByTaskId(taskId);
+                            String activityId = findTaskById(taskId).getTaskDefinitionKey();
+                            // 根据节点ID，获取对应的活动节点
+                            currActivity = ((ProcessDefinitionImpl) processDefinition)
+                                    .findActivity(activityId);
+                        }
+                    }
+
                 } else {// 并行终点，临时存储此节点，本次循环结束，迭代集合，查询对应的userTask节点
                     parallelGateways.add(activityImpl);
                 }
@@ -250,7 +275,9 @@ public class MyWorkReject2 {
         /**
          * 根据同级userTask集合，过滤最近发生的节点
          */
-        currActivity = filterNewestActivity(processInstance, tempList);
+        if(null != tempList && tempList.size() > 0){
+            currActivity = filterNewestActivity(processInstance, tempList);
+        }
         if (currActivity != null) {
             // 查询当前节点的流向是否为并行终点，并获取并行起点ID
             String id = findParallelGatewayId(currActivity);
@@ -275,9 +302,9 @@ public class MyWorkReject2 {
      * @return
      */
     private String findParallelGatewayId(ActivityImpl activityImpl) {
-        List<PvmTransition> incomingTransitions = activityImpl
+        List<PvmTransition> outgoingTransitions = activityImpl
                 .getOutgoingTransitions();
-        for (PvmTransition pvmTransition : incomingTransitions) {
+        for (PvmTransition pvmTransition : outgoingTransitions) {
             TransitionImpl transitionImpl = (TransitionImpl) pvmTransition;
             activityImpl = transitionImpl.getDestination();
             String type = (String) activityImpl.getProperty("type");

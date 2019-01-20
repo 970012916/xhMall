@@ -77,7 +77,7 @@ public class MyWorkProcessApproval {
         TaskService taskService = processEngine.getTaskService();
         Map<String, Object> variables=new HashMap<String,Object>();
         variables.put("msg", "重要情况");
-        taskService.complete("35004");
+        taskService.complete("302504");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class MyWorkProcessApproval {
 
         TaskService taskService = processEngine.getTaskService();
 
-        taskService.complete("85010");
+        taskService.complete("297502");
     }
     /**
      * taskID 是设置流程变量的下一级的任务的id
