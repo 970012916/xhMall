@@ -2,14 +2,12 @@ package com.xhMall.test;
 
 import org.activiti.engine.*;
 import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.history.HistoricTaskInstance;
-import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.impl.pvm.process.TransitionImpl;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.junit.Test;
@@ -35,7 +33,7 @@ public class MyWorkReject2 {
 
     @Test
     public void Test()throws Exception{
-        turnBackNew("305005","不同意","_6");
+        turnBackNew("320005","不同意","_6");
     }
     /**
      *
@@ -52,30 +50,28 @@ public class MyWorkReject2 {
         taskService = processEngine.getTaskService();
 
         // 取得当前任务
-        HistoricTaskInstance currTask = historyService
-                .createHistoricTaskInstanceQuery().taskId(taskId)
-                .singleResult();
-        // 取得流程实例
-        ProcessInstance instance = runtimeService
-                .createProcessInstanceQuery()
-                .processInstanceId(currTask.getProcessInstanceId())
-                .singleResult();
+        Task currTask = findTaskById(taskId);
 
+        // 取得流程实例
+        ProcessInstance instance = findProcessInstanceByTaskId(taskId);
         if (instance == null) {
             throw new RuntimeException("流程已结束");
         }
+
+        //获取流程变量
         variables = instance.getProcessVariables();
+
         // 取得流程定义
-        ProcessDefinitionEntity definition = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
-                .getDeployedProcessDefinition(currTask
-                        .getProcessDefinitionId());
+        ProcessDefinition definition= findProcessDefinitionByDefinitionId(currTask.getProcessDefinitionId());
+
         if (definition == null) {
             throw new RuntimeException("流程定义未找到");
         }
 
         // 迭代循环流程树结构，查询当前节点可驳回的任务节点 start
-        ActivityImpl currActivity = ((ProcessDefinitionImpl) definition)
+        ActivityImpl currActivity = ((ProcessDefinitionEntity)definition)
                 .findActivity(currTask.getTaskDefinitionKey());
+
         List<ActivityImpl> rtnList = new ArrayList<>();
         List<ActivityImpl> tempList = new ArrayList<>();
         List<ActivityImpl> activities = iteratorBackActivity(
@@ -84,8 +80,8 @@ public class MyWorkReject2 {
                 rtnList,
                 tempList
         );
-        // 迭代循环流程树结构，查询当前节点可驳回的任务节点 end
 
+        // 迭代循环流程树结构，查询当前节点可驳回的任务节点 end
         if (activities == null || activities.size() <= 0){
             throw new RuntimeException("没有可以选择的驳回节点!");
         }
@@ -96,7 +92,7 @@ public class MyWorkReject2 {
                 commitProcess(task.getId(), null, endActivityId);
             }
         }
-        //turnTransition(taskId, activities.get(0).getId(), null);
+
         for(ActivityImpl activity : activities){
             if(activity.getId().equals(endActivityId)){
                 turnTransition(taskId, activity.getId(), null);
@@ -211,10 +207,13 @@ public class MyWorkReject2 {
         // 当前节点的流入来源
         List<PvmTransition> incomingTransitions = currActivity
                 .getIncomingTransitions();
+
         // 条件分支节点集合，userTask节点遍历完毕，迭代遍历此集合，查询条件分支对应的userTask节点
         List<ActivityImpl> exclusiveGateways = new ArrayList<ActivityImpl>();
+
         // 并行节点集合，userTask节点遍历完毕，迭代遍历此集合，查询并行节点对应的userTask节点
         List<ActivityImpl> parallelGateways = new ArrayList<ActivityImpl>();
+
         // 遍历当前节点所有流入路径
         for (PvmTransition pvmTransition : incomingTransitions) {
             TransitionImpl transitionImpl = (TransitionImpl) pvmTransition;
@@ -229,7 +228,7 @@ public class MyWorkReject2 {
                 String gatewayType = gatewayId.substring(gatewayId
                         .lastIndexOf("_") + 1);
                 if ("START".equals(gatewayType.toUpperCase())) {// 并行起点，停止递归
-                    //return rtnList;
+
                     Task taskInfo = taskService.createTaskQuery().taskId(taskId).singleResult();
                     String instanceId = taskInfo.getProcessInstanceId();
                     List<Task> taskList = taskService.createTaskQuery().processInstanceId(instanceId).list();
@@ -237,10 +236,10 @@ public class MyWorkReject2 {
                         if (!taskId.equals(task.getId())){
                             commitProcess(task.getId(), null, "_8");
                         }else{
-                            ProcessDefinitionEntity processDefinition = findProcessDefinitionEntityByTaskId(taskId);
+                            ProcessDefinition processDefinition = findProcessDefinitionByDefinitionId(processInstance.getProcessDefinitionId());
                             String activityId = findTaskById(taskId).getTaskDefinitionKey();
                             // 根据节点ID，获取对应的活动节点
-                            currActivity = ((ProcessDefinitionImpl) processDefinition)
+                            currActivity = ((ProcessDefinitionEntity) processDefinition)
                                     .findActivity(activityId);
                         }
                     }
@@ -383,7 +382,6 @@ public class MyWorkReject2 {
         if (historicActivityInstances.size() > 0) {
             rtnVal = historicActivityInstances.get(0);
         }
-
         return rtnVal;
     }
 
@@ -399,8 +397,10 @@ public class MyWorkReject2 {
      */
     private ActivityImpl findActivitiImpl(String taskId, String activityId)
             throws Exception {
+
+        String definitionId = findTaskById(taskId).getProcessDefinitionId();
         // 取得流程定义
-        ProcessDefinitionEntity processDefinition = findProcessDefinitionEntityByTaskId(taskId);
+        ProcessDefinition processDefinition = findProcessDefinitionByDefinitionId(definitionId);
 
         // 获取当前活动节点ID
         if (activityId == null || "".equals(activityId)) {
@@ -409,7 +409,7 @@ public class MyWorkReject2 {
 
         // 根据流程定义，获取该流程实例的结束节点
         if (activityId.toUpperCase().equals("END")) {
-            for (ActivityImpl activityImpl : processDefinition.getActivities()) {
+            for (ActivityImpl activityImpl : ((ProcessDefinitionEntity)processDefinition).getActivities()) {
                 List<PvmTransition> pvmTransitionList = activityImpl
                         .getOutgoingTransitions();
                 if (pvmTransitionList.isEmpty()) {
@@ -428,16 +428,15 @@ public class MyWorkReject2 {
     /**
      * 根据任务ID获取流程定义
      *
-     * @param taskId 任务ID
+     * @param definitionId 任务ID
      * @return
      * @throws Exception
      */
-    private ProcessDefinitionEntity findProcessDefinitionEntityByTaskId(
-            String taskId) throws Exception {
+    private ProcessDefinition findProcessDefinitionByDefinitionId(
+            String definitionId) throws Exception {
         // 取得流程定义
-        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
-                .getDeployedProcessDefinition(findTaskById(taskId)
-                        .getProcessDefinitionId());
+        ProcessDefinition processDefinition = repositoryService
+                .getProcessDefinition(definitionId);
 
         if (processDefinition == null) {
             throw new Exception("流程定义未找到!");
@@ -453,8 +452,8 @@ public class MyWorkReject2 {
      * @return
      * @throws Exception
      */
-    private TaskEntity findTaskById(String taskId) throws Exception {
-        TaskEntity task = (TaskEntity) taskService.createTaskQuery().taskId(
+    private Task findTaskById(String taskId) throws Exception {
+        Task task = taskService.createTaskQuery().taskId(
                 taskId).singleResult();
         if (task == null) {
             throw new Exception("任务实例未找到!");
