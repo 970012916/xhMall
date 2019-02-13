@@ -227,8 +227,8 @@ public class MyWorkReject2 {
                 String gatewayId = activityImpl.getId();
                 String gatewayType = gatewayId.substring(gatewayId
                         .lastIndexOf("_") + 1);
-                if ("START".equals(gatewayType.toUpperCase())) {// 并行起点，停止递归
-
+                if ("START".equals(gatewayType.toUpperCase())) {
+                    //如果当前节点的流入节点是并行网关开始节点，获取该节点的同级节点，直接提交流程结束节点
                     Task taskInfo = taskService.createTaskQuery().taskId(taskId).singleResult();
                     String instanceId = taskInfo.getProcessInstanceId();
                     List<Task> taskList = taskService.createTaskQuery().processInstanceId(instanceId).list();

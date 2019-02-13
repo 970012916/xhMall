@@ -14,7 +14,9 @@ import com.xhMall.service.UserService;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.util.DigestUtils;
 import org.springframework.validation.BindingResult;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,8 +42,12 @@ import java.util.List;
 @Controller
 public class UserController extends BaseController{
 
-    @Autowired
+    @Resource(name = "userService")
     private UserService userService;
+
+    @Autowired
+    @Qualifier(value = "userServiceImpl2")
+    private UserService UserServiceImpl2;
 
     private int a = 0;
 

@@ -7,12 +7,14 @@ import com.xhMall.db.dao.UserEntityDao;
 import com.xhMall.db.entity.UserEntity;
 import com.xhMall.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.Name;
 import java.util.List;
 
-@Service
+@Service(value = "userService")
 public class UserServiceImpl implements UserService {
 
     @Autowired

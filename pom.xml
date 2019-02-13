@@ -468,6 +468,15 @@
       </exclusions>
     </dependency>
     <!--- Activiti依赖导入结束 -->
+
+    <!--netty 依赖导入开始-->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-all</artifactId>
+      <version>4.1.6.Final</version>
+    </dependency>
+    <!--netty 依赖导入结束-->
+
   </dependencies>
 
   <build>
