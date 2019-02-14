@@ -5,7 +5,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -35,12 +34,19 @@ public class NettyClient {
                  */
                 .channel(NioSocketChannel.class)
                 /**
-                 * 3.IO 处理逻辑
+                 * 3.IO 处理逻辑 这个处理器的作用就是负责向服务端写数据
                  */
                 .handler(new ChannelInitializer <Channel>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        ch.pipeline().addLast(new StringEncoder());
+                        /**
+                         *  返回的是和这条连接相关的逻辑处理链，采用了责任链模式
+                         */
+                        ch.pipeline()
+                            /**
+                             *  添加一个逻辑处理器，这个逻辑处理器为的就是在客户端建立连接成功之后，向服务端写数据
+                             */
+                            .addLast(new FirstClientHandler());
                     }
                 });
         /**
